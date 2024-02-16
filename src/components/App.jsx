@@ -13,35 +13,36 @@ export class App extends Component {
     page: 1,
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log(this.state.pictures, 'update', prevState.pictures);
+  componentDidUpdate(prevProps, prevState) {    
     if (
       this.state.page !== prevState.page ||
       this.state.searchText !== prevState.searchText
-    ) {      
+    ) {
       this.setState({ loading: true });
       try {
-        this.getData(this.state.searchText);
+        this.getData(this.state.searchText, this.state.page);
       } catch (error) {
         console.log(error);
-      }
-      finally{
+      } finally {
         this.setState({ loading: false });
       }
-    }//else{this.setState({pictures: prevState.pictures})}
+    } //else{this.setState({pictures: prevState.pictures})}
   }
 
   getData = async searchString => {
     const data = await getDataAPI(searchString);
-    this.setState({ pictures: data });    
+    this.setState({ pictures: data });
   };
-
-  handleSubmit = evt => {
-    evt.preventDefault();
+  
+  handleSubmit = searchString => {    
+    if(searchString === this.state.searchText){
+      alert('already loaded');
+      return
+    }
     this.setState({
       pictures: null,
       page: 1,
-      searchText: evt.target.text.value,
+      searchText: searchString
     });
     //this.searchText = evt.target.text.value;
     //evt.target.text.value='';
@@ -50,7 +51,7 @@ export class App extends Component {
   render() {
     return (
       <div>
-        <Searchbar handleSubmit={this.handleSubmit} />
+        <Searchbar handleSubmit={this.handleSubmit}/>
         {this.state.pictures && !this.state.loading && (
           <ImageGallery pictures={this.state.pictures.hits} />
         )}
