@@ -13,36 +13,36 @@ export class App extends Component {
     page: 1,
   };
 
-  componentDidUpdate(prevProps, prevState) {    
+  componentDidUpdate(prevProps, prevState) {
     if (
       this.state.page !== prevState.page ||
       this.state.searchText !== prevState.searchText
     ) {
       this.setState({ loading: true });
-      try {
-        this.getData(this.state.searchText, this.state.page);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.setState({ loading: false });
-      }
-    } //else{this.setState({pictures: prevState.pictures})}
+      this.getData(this.state.searchText, this.state.page);
+      this.setState({ loading: false });
+    }
   }
 
   getData = async searchString => {
-    const data = await getDataAPI(searchString);
-    this.setState({ pictures: data });
+    try {
+      const data = await getDataAPI(searchString, this.state.page);
+      this.setState({ pictures: data });
+    } catch (error) {
+      console.log(error, 'in App');
+    }
   };
-  
-  handleSubmit = searchString => {    
-    if(searchString === this.state.searchText){
+
+  handleSubmit = searchString => {
+    // console.log(searchString, this.state.searchText);
+    if (searchString === this.state.searchText) {
       alert('already loaded');
-      return
+      return;
     }
     this.setState({
       pictures: null,
       page: 1,
-      searchText: searchString
+      searchText: searchString,
     });
     //this.searchText = evt.target.text.value;
     //evt.target.text.value='';
@@ -51,7 +51,7 @@ export class App extends Component {
   render() {
     return (
       <div>
-        <Searchbar handleSubmit={this.handleSubmit}/>
+        <Searchbar handleSubmit={this.handleSubmit} />
         {this.state.pictures && !this.state.loading && (
           <ImageGallery pictures={this.state.pictures.hits} />
         )}
