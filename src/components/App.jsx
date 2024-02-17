@@ -24,10 +24,10 @@ export class App extends Component {
     console.log(modalImage);
   };
 
-  toggleModal = () =>
+  toggleModal = () =>{ console.log('Esc in toggle', this.state.isShownModal);
     this.setState(prev => ({
       isShownModal: !prev.isShownModal,
-    }));
+    }));}
 
   componentDidUpdate(prevProps, prevState) {
     if (
@@ -49,13 +49,18 @@ export class App extends Component {
       this.setState({ loading: false });
       totalPictures = data.totalHits;
       console.log(data);
+      //window.scrollBy(0, window.innerHeight*10);       
+      
     } catch (error) {
       console.log(error, 'in App');
     }
+    window.scrollBy({
+      top: 260 * 3 + 24,        
+    });
   };
 
   handleLoadMore = () => {
-    this.setState(prev => ({ page: prev.page + 1 }));
+    this.setState(prev => ({ page: prev.page + 1 }));    
   };
 
   handleSubmit = searchString => {
