@@ -8,19 +8,14 @@ export class Searchbar extends Component {
 
   handleChange = evt => {
     evt.preventDefault();
-    //console.log(evt.target.value);
     this.setState({
       searchText: evt.target.value,
     });
   };
 
   handleSubmit = evt => {
-    evt.preventDefault();    
+    evt.preventDefault();
     this.props.handleSubmit(this.state.searchText);
-    // this.setState({
-    //   searchText: '',
-    // });
-    //evt.target.reset();
   };
 
   render() {

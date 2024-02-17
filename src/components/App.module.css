@@ -1,0 +1,8 @@
+.message{
+text-align: center;    
+}
+
+.errorMessage{
+    text-align: center;    
+    color: red;
+}

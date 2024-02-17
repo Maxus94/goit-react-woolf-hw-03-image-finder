@@ -5,6 +5,9 @@ import { Button } from './Button/Button';
 import { getDataAPI } from 'api/gallery';
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
+
+import css from './App.module.css';
+
 const PER_PAGE = 12;
 let totalPictures = 0;
 let modalImage = null;
@@ -16,17 +19,15 @@ export class App extends Component {
     searchText: '',
     page: 1,
     isShownModal: false,
-    errorIsShown: false
+    errorIsShown: false,
   };
 
   handleModalImage = picture => {
     modalImage = picture;
     this.toggleModal();
-    console.log(modalImage);
   };
 
   toggleModal = () => {
-    console.log('Esc in toggle', this.state.isShownModal);
     this.setState(prev => ({
       isShownModal: !prev.isShownModal,
     }));
@@ -39,6 +40,12 @@ export class App extends Component {
     ) {
       this.getData(this.state.searchText, this.state.page);
     }
+    if (prevState.pictures?.length < this.state.pictures?.length) {
+      window.scrollBy({
+        top: 260 * 3 + 48,
+        behavior: 'smooth',
+      });
+    }
   }
 
   getData = async searchString => {
@@ -46,23 +53,15 @@ export class App extends Component {
       this.setState({ errorIsShown: false });
       this.setState({ loading: true });
       const data = await getDataAPI(searchString, this.state.page, PER_PAGE);
-      //this.setState({ pictures: data });
       this.setState(prev => ({
         pictures: prev.pictures ? [...prev.pictures, ...data.hits] : data.hits,
       }));
       totalPictures = data.totalHits;
-      console.log(data);
-      //window.scrollBy(0, window.innerHeight*10);
     } catch (error) {
-      console.log(error, 'in App');
       this.setState({ errorIsShown: true });
     } finally {
       this.setState({ loading: false });
-      window.scrollBy({
-        top: 260 * 3 + 24,
-      });
     }
-    
   };
 
   handleLoadMore = () => {
@@ -70,9 +69,8 @@ export class App extends Component {
   };
 
   handleSubmit = searchString => {
-    // console.log(searchString, this.state.searchText);
     if (searchString === this.state.searchText) {
-      alert('already loaded');
+      alert('Please, enter new text for search');
       return;
     }
     this.setState({
@@ -80,9 +78,6 @@ export class App extends Component {
       page: 1,
       searchText: searchString,
     });
-    //this.searchText = evt.target.text.value;
-    //evt.target.text.value='';
-    //this.getData(evt.target.text.value);
   };
   render() {
     return (
@@ -96,13 +91,38 @@ export class App extends Component {
           />
         )}
         {this.state.loading && <Loader />}
-        {this.state.errorIsShown&&<h2>Error of loading</h2>}
+        {this.state.errorIsShown && (
+          <h2 className={css.errorMessage}>Error of loading</h2>
+        )}
         {this.state.pictures &&
           this.state.pictures.length >= PER_PAGE &&
           this.state.pictures.length < totalPictures &&
           !this.state.loading && (
             <Button handleLoadMore={this.handleLoadMore} />
           )}
+        {!this.state.errorIsShown &&
+          !this.state.loading &&
+          !this.state.pictures && (
+            <h2 className={css.message}>Nothing was found</h2>
+          )}
+        {!this.state.loading &&
+          this.state.pictures &&
+          this.state.pictures.length === 0 && (
+            <h2 className={css.message}>Nothing was found</h2>
+          )}
+        {!this.state.loading &&
+          this.state.pictures &&
+          this.state.pictures.length > 0 &&
+          this.state.pictures.length < PER_PAGE && (
+            <h2 className={css.message}>End of collection was reached</h2>
+          )}
+        {!this.state.loading &&
+          this.state.pictures &&
+          this.state.pictures.length >= PER_PAGE &&
+          this.state.pictures.length >= totalPictures && (
+            <h2 className={css.message}>End of collection was reached</h2>
+          )}
+
         {this.state.isShownModal && (
           <Modal toggleModal={this.toggleModal}>
             <img src={modalImage} alt="" />
@@ -112,12 +132,3 @@ export class App extends Component {
     );
   }
 }
-
-// style={{
-//   height: '100vh',
-//   display: 'flex',
-//   justifyContent: 'center',
-//   alignItems: 'center',
-//   fontSize: 40,
-//   color: '#010101'
-// }}
