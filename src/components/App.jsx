@@ -16,18 +16,21 @@ export class App extends Component {
     searchText: '',
     page: 1,
     isShownModal: false,
+    errorIsShown: false
   };
 
   handleModalImage = picture => {
     modalImage = picture;
-    this.toggleModal()
+    this.toggleModal();
     console.log(modalImage);
   };
 
-  toggleModal = () =>{ console.log('Esc in toggle', this.state.isShownModal);
+  toggleModal = () => {
+    console.log('Esc in toggle', this.state.isShownModal);
     this.setState(prev => ({
       isShownModal: !prev.isShownModal,
-    }));}
+    }));
+  };
 
   componentDidUpdate(prevProps, prevState) {
     if (
@@ -40,27 +43,30 @@ export class App extends Component {
 
   getData = async searchString => {
     try {
+      this.setState({ errorIsShown: false });
       this.setState({ loading: true });
-      const data = await getDataAPI(searchString, this.state.page);
+      const data = await getDataAPI(searchString, this.state.page, PER_PAGE);
       //this.setState({ pictures: data });
       this.setState(prev => ({
         pictures: prev.pictures ? [...prev.pictures, ...data.hits] : data.hits,
       }));
-      this.setState({ loading: false });
       totalPictures = data.totalHits;
       console.log(data);
-      //window.scrollBy(0, window.innerHeight*10);       
-      
+      //window.scrollBy(0, window.innerHeight*10);
     } catch (error) {
       console.log(error, 'in App');
+      this.setState({ errorIsShown: true });
+    } finally {
+      this.setState({ loading: false });
+      window.scrollBy({
+        top: 260 * 3 + 24,
+      });
     }
-    window.scrollBy({
-      top: 260 * 3 + 24,        
-    });
+    
   };
 
   handleLoadMore = () => {
-    this.setState(prev => ({ page: prev.page + 1 }));    
+    this.setState(prev => ({ page: prev.page + 1 }));
   };
 
   handleSubmit = searchString => {
@@ -90,6 +96,7 @@ export class App extends Component {
           />
         )}
         {this.state.loading && <Loader />}
+        {this.state.errorIsShown&&<h2>Error of loading</h2>}
         {this.state.pictures &&
           this.state.pictures.length >= PER_PAGE &&
           this.state.pictures.length < totalPictures &&
@@ -97,7 +104,9 @@ export class App extends Component {
             <Button handleLoadMore={this.handleLoadMore} />
           )}
         {this.state.isShownModal && (
-          <Modal toggleModal={this.toggleModal}><img src={modalImage} alt="" /></Modal>
+          <Modal toggleModal={this.toggleModal}>
+            <img src={modalImage} alt="" />
+          </Modal>
         )}
       </div>
     );

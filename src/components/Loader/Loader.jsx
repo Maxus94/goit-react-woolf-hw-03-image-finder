@@ -1,9 +1,10 @@
 import { RotatingLines } from 'react-loader-spinner';
+import css from './Loader.module.css'
 
 export const Loader = () => {
   return (
-    <RotatingLines
-      visible={true}
+    <div className={css.loader}><RotatingLines  
+    visible={true}
       height="96"
       width="96"
       color="grey"
@@ -12,6 +13,6 @@ export const Loader = () => {
       ariaLabel="rotating-lines-loading"
       wrapperStyle={{}}
       wrapperClass=""
-    />
+    /></div>
   );
 };
