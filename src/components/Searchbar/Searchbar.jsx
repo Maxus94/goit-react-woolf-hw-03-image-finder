@@ -20,7 +20,7 @@ export class Searchbar extends Component {
     this.setState({
       searchText: '',
     });
-    evt.target.reset();
+    //evt.target.reset();
   };
 
   render() {
