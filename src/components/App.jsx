@@ -9,21 +9,21 @@ import { Modal } from './Modal/Modal';
 import css from './App.module.css';
 
 const PER_PAGE = 12;
-let totalPictures = 0;
-let modalImage = null;
 
 export class App extends Component {
   state = {
-    pictures: null,
+    pictures: [],
     loading: false,
     searchText: '',
     page: 1,
+    buttonIsShown: false,
     isShownModal: false,
     errorIsShown: false,
+    modalImage: false,
   };
 
   handleModalImage = picture => {
-    modalImage = picture;
+    this.setState({ modalImage: picture });
     this.toggleModal();
   };
 
@@ -50,13 +50,14 @@ export class App extends Component {
 
   getData = async searchString => {
     try {
-      this.setState({ errorIsShown: false });
       this.setState({ loading: true });
       const data = await getDataAPI(searchString, this.state.page, PER_PAGE);
       this.setState(prev => ({
         pictures: prev.pictures ? [...prev.pictures, ...data.hits] : data.hits,
       }));
-      totalPictures = data.totalHits;
+      this.setState({
+        buttonIsShown: this.state.page < Math.ceil(data.totalHits / PER_PAGE),
+      });
     } catch (error) {
       this.setState({ errorIsShown: true });
     } finally {
@@ -74,8 +75,13 @@ export class App extends Component {
       return;
     }
     this.setState({
-      pictures: null,
+      pictures: [],
+      loading: false,
       page: 1,
+      buttonIsShown: false,
+      isShownModal: false,
+      errorIsShown: false,
+      modalImage: false,
       searchText: searchString,
     });
   };
@@ -94,38 +100,23 @@ export class App extends Component {
         {this.state.errorIsShown && (
           <h2 className={css.errorMessage}>Error of loading</h2>
         )}
-        {this.state.pictures &&
-          this.state.pictures.length >= PER_PAGE &&
-          this.state.pictures.length < totalPictures &&
-          !this.state.loading && (
-            <Button handleLoadMore={this.handleLoadMore} />
-          )}
+        {this.state.buttonIsShown && !this.state.loading && (
+          <Button handleLoadMore={this.handleLoadMore} />
+        )}
         {!this.state.errorIsShown &&
           !this.state.loading &&
-          !this.state.pictures && (
-            <h2 className={css.message}>Nothing was found</h2>
-          )}
-        {!this.state.loading &&
-          this.state.pictures &&
           this.state.pictures.length === 0 && (
             <h2 className={css.message}>Nothing was found</h2>
           )}
-        {!this.state.loading &&
-          this.state.pictures &&
-          this.state.pictures.length > 0 &&
-          this.state.pictures.length < PER_PAGE && (
+        {!this.state.errorIsShown &&
+          !this.state.loading &&
+          !this.state.buttonIsShown &&
+          this.state.pictures.length > 0 && (
             <h2 className={css.message}>End of collection was reached</h2>
           )}
-        {!this.state.loading &&
-          this.state.pictures &&
-          this.state.pictures.length >= PER_PAGE &&
-          this.state.pictures.length >= totalPictures && (
-            <h2 className={css.message}>End of collection was reached</h2>
-          )}
-
         {this.state.isShownModal && (
           <Modal toggleModal={this.toggleModal}>
-            <img src={modalImage} alt="" />
+            <img src={this.state.modalImage} alt="" />
           </Modal>
         )}
       </div>

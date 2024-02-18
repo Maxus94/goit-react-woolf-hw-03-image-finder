@@ -16,9 +16,15 @@ export class Modal extends Component {
     }
   };
 
+  handleOverlayClick = evt => {
+    if (evt.currentTarget === evt.target) {
+      this.props.toggleModal();
+    }
+  };
+
   render() {
     return (
-      <div className={css.overlay} onClick={this.props.toggleModal}>
+      <div className={css.overlay} onClick={this.handleOverlayClick}>
         <div className={css.modal}>{this.props.children}</div>
       </div>
     );
